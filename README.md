@@ -2,7 +2,7 @@
 
 > An independent publishing platform for thoughtful writing. Built with React, Appwrite, and a deep respect for typography.
 
-![Inkwell Hero](<img width="1027" height="555" alt="inkwell" src="https://github.com/user-attachments/assets/65fa7258-f308-436c-96df-1c8950f1e792" />)
+<img width="1027" height="555" alt="inkwell" src="https://github.com/user-attachments/assets/65fa7258-f308-436c-96df-1c8950f1e792" />
 
 
 ---
