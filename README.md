@@ -34,7 +34,7 @@ The design philosophy is editorial-first: large serif typography, intentional wh
 
 ## Live Demo
 
-**[inkwell.vercel.app](https://inkwell.vercel.app)**
+**[inkwell.vercel.app](https://inkwell-omega-silk.vercel.app/)**
 
 ---
 
