@@ -36,7 +36,7 @@ function Login() {
         navigate("/")
       }
     } catch (err) {
-      // Make Appwrite error messages more human-friendly
+      // Error messages
       const msg = err.message || ''
       if (msg.toLowerCase().includes('invalid credentials') || msg.toLowerCase().includes('invalid email or password')) {
         setError('Incorrect email or password. Please try again.')
