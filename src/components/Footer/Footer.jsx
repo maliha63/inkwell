@@ -1,9 +1,23 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Logo from '../Logo'
 
 function Footer() {
   const year = new Date().getFullYear()
+  const [isMobile, setIsMobile] = useState(false)
+  const [isTablet, setIsTablet] = useState(false)
+
+  useEffect(() => {
+    const check = () => {
+      setIsMobile(window.innerWidth <= 640)
+      setIsTablet(window.innerWidth <= 1024)
+    }
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  const gridCols = isMobile ? '1fr 1fr' : isTablet ? '1fr 1fr 1fr' : '1.4fr 1fr 1fr 1fr 1fr'
 
   return (
     <footer style={{
@@ -16,14 +30,14 @@ function Footer() {
         {/* Top section */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1.4fr 1fr 1fr 1fr 1fr',
-          gap: '40px',
+          gridTemplateColumns: gridCols,
+          gap: isMobile ? '32px' : '40px',
           paddingBottom: '48px',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}>
 
-          {/* Brand + Newsletter */}
-          <div>
+          {/* Brand */}
+          <div style={{ gridColumn: isMobile ? '1 / -1' : 'auto' }}>
             <div style={{ marginBottom: '16px' }}>
               <span style={{
                 fontFamily: 'var(--font-display)',
@@ -61,7 +75,7 @@ function Footer() {
                 { name: 'About',        to: '/about' },
                 { name: 'Write for Us', to: '/write-for-us' },
                 { name: 'Changelog',    to: '/changelog' },
-                { name: 'Newsletter',    to: '/newsletter' },
+                { name: 'Newsletter',   to: '/newsletter' },
               ]
             },
             {
@@ -138,19 +152,6 @@ function Footer() {
           </div>
         </div>
       </div>
-
-      <style>{`
-        @media (max-width: 1024px) {
-          footer > div > div[style*="grid-template-columns"] {
-            grid-template-columns: 1fr 1fr 1fr !important;
-          }
-        }
-        @media (max-width: 640px) {
-          footer > div > div[style*="grid-template-columns"] {
-            grid-template-columns: 1fr 1fr !important;
-          }
-        }
-      `}</style>
     </footer>
   )
 }
