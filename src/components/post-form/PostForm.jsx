@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { RTE } from "..";
 import appwriteService from "../../appwrite/config";
@@ -21,9 +21,16 @@ export default function PostForm({ post }) {
   const [submitting, setSubmitting] = useState(false)
   const [fileName, setFileName] = useState('')
   const [selectedFile, setSelectedFile] = useState(null)
-  const [imageChanged, setImageChanged] = useState(false) // ✅ track image separately
+  const [imageChanged, setImageChanged] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
-  // Any change = isDirty (text fields) OR imageChanged (file input)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
   const hasChanges = isDirty || imageChanged
 
   const submit = async (data) => {
@@ -37,7 +44,7 @@ export default function PostForm({ post }) {
           featuredImage: file ? file.$id : undefined,
         })
         if (dbPost) {
-          setImageChanged(false) // reset after save
+          setImageChanged(false)
           navigate(`/post/${dbPost.$id}`)
         }
       } else {
@@ -60,7 +67,7 @@ export default function PostForm({ post }) {
     }
   }
 
-   const slugTransform = useCallback((value) => {
+  const slugTransform = useCallback((value) => {
     if (value && typeof value === "string")
       //same as below but with regex and also remove special characters except for hyphen
 
@@ -86,7 +93,6 @@ export default function PostForm({ post }) {
     return () => subscription.unsubscribe()
   }, [watch, slugTransform, setValue])
 
-  // Button is green when there are changes, grey when no changes
   const submitBtnBg = submitting
     ? 'var(--ink-muted)'
     : post
@@ -114,13 +120,19 @@ export default function PostForm({ post }) {
     color: 'var(--ink)',
     outline: 'none',
     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+    boxSizing: 'border-box',
   }
 
   return (
     <form onSubmit={handleSubmit(submit)}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '48px', alignItems: 'start' }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 380px',
+        gap: isMobile ? '32px' : '48px',
+        alignItems: 'start',
+      }}>
 
-        {/* ── Left ── */}
+        {/* ── Left: main fields ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
             <label style={labelStyle}>Title</label>
@@ -151,8 +163,12 @@ export default function PostForm({ post }) {
           </div>
         </div>
 
-        {/* ── Right ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'sticky', top: '88px' }}>
+        {/* ── Right: sidebar ── */}
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: '20px',
+          position: isMobile ? 'static' : 'sticky',
+          top: isMobile ? 'auto' : '88px',
+        }}>
 
           {/* Image upload */}
           <div>
@@ -188,12 +204,11 @@ export default function PostForm({ post }) {
                   if (file) {
                     setSelectedFile(file)
                     setFileName(file.name)
-                    setImageChanged(true) // ✅ mark as changed
+                    setImageChanged(true)
                   }
                 }}
               />
             </label>
-            {/* Show "new image selected" indicator */}
             {imageChanged && (
               <p style={{
                 fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
