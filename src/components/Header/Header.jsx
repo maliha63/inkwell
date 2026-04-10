@@ -18,6 +18,7 @@ function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const dropdownRef = useRef(null)
 
   const userName = userData?.name || userData?.userData?.name || 'User'
@@ -54,7 +55,16 @@ function Header() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-useEffect(() => { setDropdownOpen(false) }, [location])
+  useEffect(() => {
+    setDropdownOpen(false)
+    setMobileMenuOpen(false)
+  }, [location])
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [mobileMenuOpen])
 
   const isActive = (slug) => location.pathname === slug
 
@@ -71,7 +81,7 @@ useEffect(() => { setDropdownOpen(false) }, [location])
     <>
       <div style={{ height: '68px' }} />
 
-      {/* ── Logout Modal — lean version ── */}
+      {/* ── Logout Modal ── */}
       {showLogoutModal && (
         <div
           onClick={() => setShowLogoutModal(false)}
@@ -108,7 +118,6 @@ useEffect(() => { setDropdownOpen(false) }, [location])
               You'll need to sign back in to write or manage posts.
             </p>
             <div style={{ display: 'flex', gap: '10px' }}>
-              {/* Cancel */}
               <button
                 onClick={() => setShowLogoutModal(false)}
                 style={{
@@ -118,20 +127,8 @@ useEffect(() => { setDropdownOpen(false) }, [location])
                   borderRadius: '100px',
                   fontFamily: 'var(--font-body)', fontSize: '0.875rem',
                   color: 'var(--ink)', cursor: 'pointer',
-                  transition: 'background 0.2s ease, border-color 0.2s ease',
                 }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'var(--paper-warm)'
-                  e.currentTarget.style.borderColor = 'var(--border-strong)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.borderColor = 'var(--border)'
-                }}
-              >
-                Cancel
-              </button>
-              {/* Sign out */}
+              >Cancel</button>
               <button
                 onClick={handleLogoutConfirm}
                 disabled={loggingOut}
@@ -142,13 +139,6 @@ useEffect(() => { setDropdownOpen(false) }, [location])
                   fontFamily: 'var(--font-body)', fontSize: '0.875rem',
                   fontWeight: 600, color: '#fff',
                   cursor: loggingOut ? 'not-allowed' : 'pointer',
-                  transition: 'background 0.2s ease, opacity 0.2s ease',
-                }}
-                onMouseEnter={e => {
-                  if (!loggingOut) e.currentTarget.style.background = 'var(--accent)'
-                }}
-                onMouseLeave={e => {
-                  if (!loggingOut) e.currentTarget.style.background = 'var(--ink)'
                 }}
               >
                 {loggingOut ? 'Signing out...' : 'Sign out'}
@@ -158,11 +148,78 @@ useEffect(() => { setDropdownOpen(false) }, [location])
         </div>
       )}
 
+      {/* ── Mobile Menu Overlay ── */}
+      {mobileMenuOpen && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 998,
+          background: 'var(--paper)',
+          display: 'flex', flexDirection: 'column',
+          paddingTop: '68px',
+          animation: 'fadeIn 0.2s ease both',
+        }}>
+          <nav style={{ padding: '32px 24px', flex: 1, overflowY: 'auto' }}>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              {navItems.filter(i => i.active).map((item) => (
+                <li key={item.name} style={{ borderBottom: '1px solid var(--border)' }}>
+                  <button
+                    onClick={() => navigate(item.slug)}
+                    style={{
+                      width: '100%', textAlign: 'left',
+                      padding: '18px 0',
+                      fontFamily: 'var(--font-display)', fontSize: '1.5rem',
+                      fontWeight: isActive(item.slug) ? 700 : 400,
+                      color: isActive(item.slug) ? 'var(--accent)' : 'var(--ink)',
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      letterSpacing: '-0.02em',
+                    }}
+                  >{item.name}</button>
+                </li>
+              ))}
+
+              {authStatus && (
+                <>
+                  {[
+                    { label: 'All Posts', slug: '/all-posts' },
+                    { label: 'Add Post', slug: '/add-post' },
+                  ].map(item => (
+                    <li key={item.label} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <button
+                        onClick={() => navigate(item.slug)}
+                        style={{
+                          width: '100%', textAlign: 'left',
+                          padding: '18px 0',
+                          fontFamily: 'var(--font-display)', fontSize: '1.5rem',
+                          fontWeight: isActive(item.slug) ? 700 : 400,
+                          color: isActive(item.slug) ? 'var(--accent)' : 'var(--ink)',
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          letterSpacing: '-0.02em',
+                        }}
+                      >{item.label}</button>
+                    </li>
+                  ))}
+                  <li style={{ paddingTop: '24px' }}>
+                    <button
+                      onClick={() => { setMobileMenuOpen(false); setShowLogoutModal(true) }}
+                      style={{
+                        padding: '12px 24px', borderRadius: '100px',
+                        border: '1px solid var(--border)',
+                        fontFamily: 'var(--font-body)', fontSize: '0.9rem',
+                        color: 'var(--accent)', background: 'none', cursor: 'pointer',
+                      }}
+                    >Sign out</button>
+                  </li>
+                </>
+              )}
+            </ul>
+          </nav>
+        </div>
+      )}
+
       {/* ── Header ── */}
       <header style={{
         position: 'fixed',
         top: 0, left: 0, right: 0,
-        zIndex: 1000,
+        zIndex: 999,
         height: '68px',
         background: scrolled ? 'rgba(245,242,235,0.94)' : 'var(--paper)',
         backdropFilter: scrolled ? 'blur(16px)' : 'none',
@@ -179,7 +236,8 @@ useEffect(() => { setDropdownOpen(false) }, [location])
               <Logo width='140px' />
             </Link>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            {/* Desktop nav */}
+            <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <ul style={{ display: 'flex', alignItems: 'center', gap: '2px', listStyle: 'none', margin: 0, padding: 0 }}>
                 {navItems.map((item) => item.active ? (
                   <li key={item.name}>
@@ -259,7 +317,6 @@ useEffect(() => { setDropdownOpen(false) }, [location])
                       animation: 'fadeUp 0.2s cubic-bezier(0.16,1,0.3,1) both',
                       zIndex: 100,
                     }}>
-                      {/* User info */}
                       <div style={{
                         padding: '16px 16px 12px',
                         borderBottom: '1px solid var(--border)',
@@ -290,7 +347,6 @@ useEffect(() => { setDropdownOpen(false) }, [location])
                         </div>
                       </div>
 
-                      {/* Nav items */}
                       {[
                         { label: 'All Posts', icon: '◈', slug: '/all-posts' },
                         { label: 'Add Post', icon: '+', slug: '/add-post' },
@@ -320,7 +376,6 @@ useEffect(() => { setDropdownOpen(false) }, [location])
 
                       <div style={{ height: '1px', background: 'var(--border)', margin: '4px 0' }} />
 
-                      {/* Sign out */}
                       <button
                         onClick={() => { setDropdownOpen(false); setShowLogoutModal(true) }}
                         style={{
@@ -347,9 +402,44 @@ useEffect(() => { setDropdownOpen(false) }, [location])
                 </div>
               )}
             </div>
+
+            {/* Mobile hamburger */}
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(v => !v)}
+              style={{
+                display: 'none',
+                background: 'none', border: 'none',
+                cursor: 'pointer', padding: '8px',
+                color: 'var(--ink)',
+              }}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                /* X icon */
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              ) : (
+                /* Hamburger icon */
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <line x1="3" y1="12" x2="21" y2="12"/>
+                  <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+              )}
+            </button>
           </nav>
         </Container>
       </header>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-nav { display: none !important; }
+          .mobile-menu-btn { display: flex !important; }
+        }
+      `}</style>
     </>
   )
 }
