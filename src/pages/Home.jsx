@@ -4,6 +4,17 @@ import { Container, PostCard } from '../components'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= breakpoint)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [breakpoint])
+  return isMobile
+}
+
 const NEWS_API_KEY = import.meta.env.VITE_NEWS_API_KEY || ''
 
 // ── Hardcoded fallback quotes (used if API fails) ──────────────────────────
@@ -19,6 +30,7 @@ const FALLBACK_QUOTES = [
 ]
 
 function Home() {
+  const isMobile = useIsMobile()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [trendingNews, setTrendingNews] = useState([])
@@ -309,8 +321,8 @@ function Home() {
             <Link to={`/post/${featuredPost.$id}`} style={{ textDecoration: 'none', display: 'block' }}>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '64px',
+                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                gap: isMobile ? '32px' : '64px',
                 alignItems: 'center',
               }}
                 onMouseEnter={e => e.currentTarget.querySelector('h2').style.color = 'var(--accent)'}
