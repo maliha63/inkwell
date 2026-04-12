@@ -1,15 +1,4 @@
-// api/news.js
-// Vercel serverless function — proxies NewsAPI so the browser never calls it directly.
-// This bypasses NewsAPI's free-plan browser restriction and keeps your API key server-side.
-//
-// Usage from your frontend:
-//   fetch('/api/news')  ← instead of fetching newsapi.org directly
-//
-// Setup:
-//   1. Create this file at: <project-root>/api/news.js
-//   2. In Vercel dashboard → your project → Settings → Environment Variables
-//      Add: VITE_NEWS_API_KEY = your_key_here
-//      (or NEWS_API_KEY if you prefer a server-only variable name)
+
 
 export default async function handler(req, res) {
   // Only allow GET
