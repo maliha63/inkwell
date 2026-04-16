@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { login as authLogin } from '../store/authSlice'
 import { useDispatch } from "react-redux"
@@ -25,6 +25,13 @@ function Login() {
   const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm()
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const login = async (data) => {
     setError("")
@@ -36,7 +43,6 @@ function Login() {
         navigate("/")
       }
     } catch (err) {
-      // Error messages
       const msg = err.message || ''
       if (msg.toLowerCase().includes('invalid credentials') || msg.toLowerCase().includes('invalid email or password')) {
         setError('Incorrect email or password. Please try again.')
@@ -78,50 +84,75 @@ function Login() {
   )
 
   return (
-    <div style={{ minHeight: '92vh', display: 'grid', gridTemplateColumns: '1fr 1fr', overflow: 'hidden' }}>
+    <div style={{
+      minHeight: '92vh',
+      display: 'grid',
+      // Single column on mobile, two columns on desktop
+      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+      overflow: 'hidden',
+    }}>
 
-      {/* Left — decorative */}
-      <div style={{
-        background: 'var(--ink)', display: 'flex', flexDirection: 'column',
-        justifyContent: 'space-between', padding: '60px 64px', position: 'relative', overflow: 'hidden',
-      }}>
+      {/* ── Left decorative panel — desktop only ── */}
+      {!isMobile && (
         <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `radial-gradient(circle at 30% 70%, rgba(200,81,42,0.15) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 20%, rgba(184,149,58,0.08) 0%, transparent 40%)`,
-        }} />
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', fontWeight: 700, color: 'var(--paper)', letterSpacing: '-0.02em' }}>← Inkwell</div>
-          </Link>
+          background: 'var(--ink)', display: 'flex', flexDirection: 'column',
+          justifyContent: 'space-between', padding: '60px 64px',
+          position: 'relative', overflow: 'hidden',
+        }}>
+          <div style={{
+            position: 'absolute', inset: 0,
+            backgroundImage: `radial-gradient(circle at 30% 70%, rgba(200,81,42,0.15) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 20%, rgba(184,149,58,0.08) 0%, transparent 40%)`,
+          }} />
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', fontWeight: 700, color: 'var(--paper)', letterSpacing: '-0.02em' }}>← Inkwell</div>
+            </Link>
+          </div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <blockquote style={{
+              fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)',
+              fontWeight: 700, color: 'var(--paper)', lineHeight: 1.2, letterSpacing: '-0.03em', marginBottom: '24px',
+            }}>
+              "Writing is the<br />
+              <em style={{ color: 'var(--accent)', fontStyle: 'italic' }}>painting</em><br />
+              of the voice."
+            </blockquote>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(245,242,235,0.4)' }}>— Voltaire</p>
+          </div>
+          <div style={{ position: 'absolute', bottom: 0, right: 0, width: '300px', height: '300px', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '50%', transform: 'translate(30%, 30%)' }} />
         </div>
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <blockquote style={{
-            fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)',
-            fontWeight: 700, color: 'var(--paper)', lineHeight: 1.2, letterSpacing: '-0.03em', marginBottom: '24px',
-          }}>
-            "Writing is the<br />
-            <em style={{ color: 'var(--accent)', fontStyle: 'italic' }}>painting</em><br />
-            of the voice."
-          </blockquote>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(245,242,235,0.4)' }}>— Voltaire</p>
-        </div>
-        <div style={{ position: 'absolute', bottom: 0, right: 0, width: '300px', height: '300px', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '50%', transform: 'translate(30%, 30%)' }} />
-      </div>
+      )}
 
-      {/* Right — form */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 64px', background: 'var(--paper)' }}>
+      {/* ── Form panel ── */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        // Tighter padding on mobile so form doesn't feel cramped
+        padding: isMobile ? '48px 24px' : '60px 64px',
+        background: 'var(--paper)',
+        minHeight: isMobile ? '92vh' : 'auto',
+      }}>
         <div style={{ width: '100%', maxWidth: '380px' }} className="animate-fade-up">
 
+          {/* Mobile-only logo — shown because the dark panel is hidden */}
+          {isMobile && (
+            <Link to="/" style={{ textDecoration: 'none', display: 'block', marginBottom: '40px' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.02em' }}>✦ Inkwell</div>
+            </Link>
+          )}
+
           <div style={{ marginBottom: '40px' }}>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.03em', marginBottom: '10px' }}>Welcome back.</h1>
+            <h1 style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: isMobile ? '2rem' : '2.2rem',
+              fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.03em', marginBottom: '10px',
+            }}>Welcome back.</h1>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--ink-muted)' }}>
               No account?{' '}
               <Link to="/signup" style={{ color: 'var(--accent)', textDecoration: 'none', borderBottom: '1px solid var(--accent)', paddingBottom: '1px' }}>Sign up free</Link>
             </p>
           </div>
 
-          {/* Server error */}
           {error && (
             <div style={{
               background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626',
@@ -168,6 +199,7 @@ function Login() {
                   style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-muted)', padding: '4px', display: 'flex', alignItems: 'center' }}
                   onMouseEnter={e => e.currentTarget.style.color = 'var(--ink)'}
                   onMouseLeave={e => e.currentTarget.style.color = 'var(--ink-muted)'}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
