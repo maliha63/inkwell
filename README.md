@@ -48,6 +48,8 @@ The design philosophy is editorial-first: large serif typography, intentional wh
 
 ### Posts
 - Create, edit, and delete posts with a full rich text editor (TinyMCE)
+- Reading Time Estimation — strips HTML from TinyMCE content to calculate reading time (200 wpm)
+- Pagination — implemented with POSTS_PER_PAGE = 8, numbered navigation, and auto-reset on filter/search
 - Auto-generated URL slugs from post titles (trimmed to 36 characters, URL-safe)
 - Featured image upload stored in Appwrite Storage
 - Draft / Active status toggle — publish when ready
@@ -108,6 +110,7 @@ src/
 │   ├── Login.jsx        # Login form (used via components/index.js)
 │   ├── PostCard.jsx     # Post list item
 │   ├── PostForm.jsx     # Create / edit post form
+│   ├── Comments.jsx     # Comment management, avatars, and relative time
 │   ├── RTE.jsx          # TinyMCE rich text editor wrapper
 │   ├── AuthLayout.jsx   # Route protection wrapper
 │   ├── LogoutBtn.jsx
@@ -177,6 +180,7 @@ VITE_APPWRITE_DATABASE_ID=your_database_id
 VITE_APPWRITE_TABLE_ID=your_collection_id
 VITE_APPWRITE_BUCKET_ID=your_bucket_id
 VITE_NEWS_API_KEY=your_newsapi_key
+VITE_APPWRITE_COMMENTS_COLLECTION_ID=your_comments_id
 ```
 
 > **Never commit your `.env` file.** It is already in `.gitignore`. Add these same variables in Vercel's dashboard under Settings → Environment Variables before deploying.
@@ -252,14 +256,9 @@ A reverse-chronological log of every meaningful change to the platform, with ver
 
 ## Roadmap
 
-- [ ] Pagination / infinite scroll for post lists
-- [ ] Proper tag system with Appwrite collection relations
-- [ ] User profiles with avatar and bio
-- [ ] Reading time estimate on posts
 - [ ] Dark mode
-- [ ] Comments via Appwrite Realtime
 - [ ] Email delivery for newsletter subscribers (Resend / Mailchimp integration)
-- [ ] Custom domain with Appwrite custom endpoint (removes the localStorage security warning)
+- [ ] Custom domain with Appwrite custom endpoint 
 - [ ] RSS feed
 
 ---
