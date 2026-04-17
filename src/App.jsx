@@ -14,7 +14,7 @@ function App() {
   useEffect(() => {
     authService.getCurrentUser()
       .then((userData) => {
-        if (userData) dispatch(login({ userData: userData }))
+        if (userData) dispatch(login({ userData }))
         else dispatch(logout())
       })
       .finally(() => setLoading(false))
@@ -23,13 +23,9 @@ function App() {
   if (loading) {
     return (
       <div className="loading-screen">
-        <span className="loading-dot" style={{ animationDelay: '0s' }}>I</span>
-        <span className="loading-dot" style={{ animationDelay: '0.05s' }}>n</span>
-        <span className="loading-dot" style={{ animationDelay: '0.1s' }}>k</span>
-        <span className="loading-dot" style={{ animationDelay: '0.15s' }}>w</span>
-        <span className="loading-dot" style={{ animationDelay: '0.2s' }}>e</span>
-        <span className="loading-dot" style={{ animationDelay: '0.25s' }}>l</span>
-        <span className="loading-dot" style={{ animationDelay: '0.3s' }}>l</span>
+        {'Inkwell'.split('').map((ch, i) => (
+          <span key={i} className="loading-dot" style={{ animationDelay: `${i * 0.05}s` }}>{ch}</span>
+        ))}
       </div>
     )
   }
