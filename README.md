@@ -153,7 +153,7 @@ api/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/inkwell.git
+git clone https://github.com/maliha63/inkwell.git
 cd inkwell
 
 # Install dependencies
